@@ -1,35 +1,22 @@
 #include <Windows.h>
 
-BOOL WINAPI DllMain(
-    HINSTANCE hinstDLL,  // handle to DLL module
-    DWORD fdwReason,     // reason for calling function
-    LPVOID lpvReserved)  // reserved
+DWORD WINAPI Main(LPVOID lpvReserved) {
+    auto hinstDLL = static_cast<HINSTANCE>(lpvReserved);
+
+    return 0;
+}
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-    // Perform actions based on the reason for calling.
-    switch (fdwReason)
-    {
-    case DLL_PROCESS_ATTACH:
-        // Initialize once for each new process.
-        // Return FALSE to fail DLL load.
-        break;
+    if (fdwReason == DLL_PROCESS_ATTACH) {
+        HANDLE mainThread = CreateThread(0, 0, Main, hinstDLL, 0, 0);
 
-    case DLL_THREAD_ATTACH:
-        // Do thread-specific initialization.
-        break;
-
-    case DLL_THREAD_DETACH:
-        // Do thread-specific cleanup.
-        break;
-
-    case DLL_PROCESS_DETACH:
-
-        if (lpvReserved != nullptr)
-        {
-            break; // do not do cleanup if process termination scenario
+        if (!mainThread) {
+            return FALSE;
         }
-
-        // Perform any necessary cleanup.
-        break;
+        else {
+            CloseHandle(mainThread);
+            return TRUE;
+        }
     }
-    return TRUE;  // Successful DLL_PROCESS_ATTACH.
 }
